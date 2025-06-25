@@ -45,8 +45,9 @@ jobs:
 
     - name: Deploy with Helm
       run: |
-        helm upgrade --install $HELM_RELEASE ./charts/sreapi \
+        AWS_ACCOUNT_ID=$(echo ${{ steps.login-ecr.outputs.registry }} | cut -d'.' -f1)
+        helm upgrade --install $HELM_RELEASE sreapi/ \
           --namespace $NAMESPACE \
           --create-namespace \
           --atomic \
-          --set awsAccountId=${{ steps.login-ecr.outputs.registry | cut -d'.' -f1 }}
+          --set awsAccountId=$AWS_ACCOUNT_ID

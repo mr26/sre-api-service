@@ -1,0 +1,21 @@
+replicaCount: 1
+
+apiapp:
+  image:
+    tag: latest
+  containerPort: 8000
+  env:
+    redisHost: redis
+    mongoUri: mongodb://mongodb:27017
+
+redis:
+  image: redis
+  tag: "7"
+  port: 6379
+
+mongodb:
+  image: mongo
+  tag: "6"
+  port: 27017
+
+awsAccountId: ""

@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+boto3
+kubernetes
+requests
+eks_token
+redis[asyncio]
+python-multipart
+starlette
+motor

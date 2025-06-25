@@ -1,0 +1,79 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: apiapp
+  namespace: api-namespace
+  labels:
+    app: apiapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apiapp
+  template:
+    metadata:
+      annotations:
+        rollme: "{{ now | unixEpoch }}"
+      labels:
+        app: apiapp
+    spec:
+      serviceAccountName: api-sa
+      containers:
+      - name: apiapp
+        image: "{{ .Values.awsAccountId }}.dkr.ecr.us-east-1.amazonaws.com/sre_ecr_repo:{{ .Values.apiapp.image.tag }}"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.apiapp.containerPort }}
+        env:
+        - name: REDIS_HOST
+          value: {{ .Values.apiapp.env.redisHost }}
+        - name: MONGO_URI
+          value: {{ .Values.apiapp.env.mongoUri }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: api-namespace
+spec:
+  replicas: {{ .Values.replicaCount}}
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7
+        ports:
+        - containerPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: api-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+      volumes:
+      - name: mongo-data
+        emptyDir: {}

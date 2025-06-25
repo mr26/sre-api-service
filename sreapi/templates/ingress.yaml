@@ -1,0 +1,32 @@
+--- 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: api-namespace
+  name: mtls-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-name: mtls-lb
+    alb.ingress.kubernetes.io/tags: auto-delete=no    
+    # Listen port configuration
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    ## TLS Settings
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:{{ .Values.awsAccountId }}:certificate/514ce48d-b716-4aeb-bf38-fdffd2d5a92e  # specifies the ARN of one or more certificate managed by AWS Certificate Manager
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06 # Optional (Picks default if not used)
+    alb.ingress.kubernetes.io/mutual-authentication:  >-
+      [{"port": 443, "mode": "verify", "trustStore": "arn:aws:elasticloadbalancing:us-east-1:{{ .Values.awsAccountId }}:truststore/api-trust-store/e28ad6d897ec4e39"}]
+    alb.ingress.kubernetes.io/load-balancer-attributes: connection_logs.s3.enabled=true,connection_logs.s3.bucket=sreproj-alb-access-logs,connection_logs.s3.prefix=alb/alb-prod
+spec:
+  ingressClassName: alb
+  rules:
+    - host: "api.mehdisre.click"
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: api-service
+              port:
+                number: 80

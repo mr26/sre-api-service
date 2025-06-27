@@ -54,7 +54,7 @@ jobs:
     - name: Deploy with Helm
       run: |
         helm upgrade --install $HELM_RELEASE sreapi/ \
-          --namespace $NAMESPACE \
+          --namespace default \
           --create-namespace \
           --atomic \
           --set awsAccountId=${{ env.AWS_ACCOUNT_ID }}

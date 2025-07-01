@@ -344,3 +344,7 @@ async def get_nodes(cluster_name: str):
     except Exception as e:
         logger.exception(f"Unexpected error occurred: {e}")
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.get("/deployment-test")
+def deployment_test():
+    return {"message": "TESTING SUCCESSFUL."}
